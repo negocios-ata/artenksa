@@ -27,6 +27,11 @@ header{background:#f0ede4;border-bottom:1px solid #e4dfd2;position:sticky;top:0;
 .info{padding:17px}.category{font-size:10px;letter-spacing:1.8px;color:var(--gold);text-transform:uppercase;font-weight:800}.info h3{font:21px/1.2 Georgia,serif;font-weight:400;margin:9px 0 12px;min-height:50px}.price{font-size:17px;font-weight:800;color:var(--olive)}.wholesale{font-size:12px;color:var(--muted);margin-top:7px}.ask{display:block;text-align:center;border:1px solid var(--olive);color:var(--olive);padding:11px;border-radius:25px;margin-top:15px;font-size:12px;font-weight:800;letter-spacing:.6px}.ask:hover{background:var(--olive);color:white}
 .empty{padding:45px;text-align:center;color:var(--muted);grid-column:1/-1}.note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:25px}
 footer{background:var(--olive);color:#f5efdf;padding:55px 24px}.foot{max-width:1220px;margin:auto;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px}.foot h3{font:30px Georgia,serif;font-weight:400;margin:0 0 15px}.foot p{color:#d9d6c8;line-height:1.8;font-size:14px}.foot small{letter-spacing:2px;color:#d9b78b}
+/* Contador de visitas */
+.visits{display:inline-flex;align-items:center;gap:9px;margin-top:16px;padding:9px 15px;border:1px solid #ffffff2e;border-radius:30px;background:#ffffff0f;color:#efe6d2;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;font-weight:700}
+.visits svg{width:16px;height:16px;stroke:#d9b78b;fill:none;stroke-width:1.6;flex:none}
+.visits b{font:700 17px/1 Inter,Arial,sans-serif;letter-spacing:0;color:#fff;font-variant-numeric:tabular-nums}
+@media print{.visits{display:none!important}}
 @media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}.hero-inner{grid-template-columns:1fr .65fr}.links{gap:14px}}
 @media(max-width:650px){.nav{padding:10px 16px}.brand img{width:48px;height:48px}.brand strong{font-size:22px}.links a:not(.phone){display:none}.phone{font-size:10px;padding:12px}.hero-inner{grid-template-columns:1fr;padding:55px 22px}.hero-mark{display:none}.hero p{font-size:18px}.intro,.catalog{padding-left:17px;padding-right:17px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.photo{height:165px}.info{padding:13px}.info h3{font-size:18px;min-height:44px}.price{font-size:15px}.foot{grid-template-columns:1fr;gap:20px}}
 @media(max-width:390px){.grid{grid-template-columns:1fr 1fr}.photo{height:140px}}
@@ -84,7 +89,7 @@ footer{background:var(--olive);color:#f5efdf;padding:55px 24px}.foot{max-width:1
 <div class="meta"><span id="count">Cargando productos…</span><span>Artesanía · Hogar · Regalos</span></div><div class="grid" id="grid"></div>
 <p class="note">Los precios se muestran tal como aparecen en el listado recibido. Para confirmar disponibilidad, variantes, precios al por mayor y condiciones de compra, consulta directamente con la tienda.</p>
 </main>
-<footer id="contacto"><div class="foot"><div><h3>Arte en Ksa</h3><small>INSPIRAMOS HOGARES · IMPULSAMOS EMPRENDEDORES</small><p>Decoramos · Regalamos · Disfrutamos lo natural.</p></div><div><small>VISÍTANOS</small><p>Avenida 14, entre Calle 3 y Calle 5<br>Jovellanos · Matanzas · Cuba</p></div><div><small>HABLEMOS</small><p><a href="https://wa.me/5358229190" target="_blank" rel="noopener">WhatsApp: 58 22 91 90</a><br>Encargos personalizados y atención al por mayor.</p></div></div></footer>
+<footer id="contacto"><div class="foot"><div><h3>Arte en Ksa</h3><small>INSPIRAMOS HOGARES · IMPULSAMOS EMPRENDEDORES</small><p>Decoramos · Regalamos · Disfrutamos lo natural.</p></div><div><small>VISÍTANOS</small><p>Avenida 14, entre Calle 3 y Calle 5<br>Jovellanos · Matanzas · Cuba</p></div><div><small>HABLEMOS</small><p><a href="https://wa.me/5358229190" target="_blank" rel="noopener">WhatsApp: 58 22 91 90</a><br>Encargos personalizados y atención al por mayor.</p><div class="visits" title="Visitas recibidas en este catálogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.8"/></svg><b id="visitCount">—</b><span>visitas</span></div></div></div></footer>
 
 <div class="lightbox" id="lightbox" aria-modal="true" role="dialog" aria-label="Fotografía ampliada">
   <div class="lightbox-inner">
@@ -124,6 +129,30 @@ function render(){
 }
 search.addEventListener('input',render);category.addEventListener('change',render);mode.addEventListener('change',render);render();
 const exportButton=document.getElementById('exportPdf'); if(exportButton) exportButton.addEventListener('click',()=>window.print());
+
+/* ============================================================
+   CONTADOR DE VISITAS
+   Cambia solo namespace (tu marca) y key (esta página) si quieres
+   llevar contadores separados por cliente.
+   Servicio global gratuito: abacus.jasoncameron.dev
+   Si el servicio no responde, el contador local del navegador
+   sigue funcionando para no romper la página.
+   ============================================================ */
+const VISITS={namespace:'tellezsoftware',key:'arte-en-ksa-catalogo'};
+(function(){
+ const el=document.getElementById('visitCount');
+ if(!el)return;
+ const LOCAL='aek_views_v1', SESSION='aek_view_counted';
+ const fmt=n=>new Intl.NumberFormat('es-ES').format(n);
+ let local=0; try{local=parseInt(localStorage.getItem(LOCAL)||'0',10)||0}catch(e){}
+ let already=false; try{already=sessionStorage.getItem(SESSION)==='1'}catch(e){}
+ const paintLocal=n=>{el.textContent=fmt(n);};
+ const base='https://abacus.jasoncameron.dev/'+(already?'get':'hit')+'/'+VISITS.namespace+'/'+VISITS.key;
+ fetch(base,{cache:'no-store'})
+  .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+  .then(d=>{ if(d&&typeof d.value==='number'){el.textContent=fmt(d.value);try{sessionStorage.setItem(SESSION,'1')}catch(e){}} else paintLocal(local); })
+  .catch(()=>{ const n=already?local:Math.max(local+1,1); try{localStorage.setItem(LOCAL,String(n))}catch(e){} paintLocal(n); });
+})();
 
 // Al tocar/clicar la foto del producto se abre en grande; cerrar con X, fondo o Escape.
 const lightbox=document.getElementById('lightbox');
